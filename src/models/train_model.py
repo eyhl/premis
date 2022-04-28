@@ -1,11 +1,14 @@
 import numpy as np
+import numpy.typing as npt
+from pyparsing import javaStyleComment
 import torch
 import pyro
 import pyro.distributions as dist
 from TABOO import taboo
 import greens_function
 
-def premis_train(X, x=2, n = 128, obs = None):
+
+def premis_train(X, x=2, n = 128, obs = None) -> np.ndarray:
     #  could add dists over mu and sigmas 
     #  sigma = pyro.sample("sigma", dist.HalfCauchy(5.)) 
     #                  
@@ -20,7 +23,7 @@ def premis_train(X, x=2, n = 128, obs = None):
 
     # Draw mass change with time
     m = pyro.sample("m", dist.Normal(torch.zeros(128), torch.ones(128)))
-    
+
     sigma_w = pyro.sample('sigma', dist.HalfCauchy(0.1))
     sigma_GF = 1
 
@@ -30,7 +33,7 @@ def premis_train(X, x=2, n = 128, obs = None):
 
     with pyro.plate("data"):
         # Draw Love Numbers
-        LN = torch.tensor(taboo(E_L.item(), E_UM.item(), E_LM.item()))
+        LN = torch.tensor(taboo(j = n, e_l = E_L.item(), e_um = E_UM.item(), e_lm = E_LM.item()))
 
         # Draw Greens Funciton 
         GF = pyro.sample('GF', dist.Normal(greens_function(A, D, LN), sigma_GF))
@@ -39,3 +42,6 @@ def premis_train(X, x=2, n = 128, obs = None):
         w = pyro.sample("w", dist.Normal(GF @ m, sigma_w), obs=obs)
         
     return w
+
+def taboo(j: int, e_l: float, e_um: float, e_lm: float) -> npt.NDArray[np.int_]:
+    return np.random.randint(j)
