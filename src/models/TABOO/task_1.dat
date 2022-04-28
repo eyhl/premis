@@ -18,7 +18,7 @@ Active
 !
 !		$ONLY_ELASTIC
 Harmonic_Degrees
-    1 512        ! min and max harmonic degrees 
+    2 512        ! min and max harmonic degrees 
         1        ! verbose mode (1->verbose, 0->silent) 
         1        ! I_loading (loading ->1, tidal->0)
 !
@@ -120,8 +120,8 @@ Normalized_Residues
 !
 El_Fluid_Viscel
      1       ! If 1 is given here, I write h_e, h_f, e h_i vs. deg. on 'h.dat'
-     1       ! If 1  "   "     " , I write l_e, l_f, e l_i vs. deg. on 'l.dat'
-     1       ! If 1  "   "     " , I write k_e, k_f, e k_i vs. deg. on 'k.dat'
+     0       ! If 1  "   "     " , I write l_e, l_f, e l_i vs. deg. on 'l.dat'
+     0       ! If 1  "   "     " , I write k_e, k_f, e k_i vs. deg. on 'k.dat'
 !
 !
 !
