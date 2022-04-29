@@ -1,4 +1,4 @@
- # File spectrum.dat, created by Task#1 of TABOO on 2022.04.28 time=16.40.49
+ # File spectrum.dat, created by Task#1 of TABOO on 2022.04.29 time=11.43.25
    # 1st column: l = Harmonic degree                
    # 2nd   "   : LOG10 (l)                          
    # 3th   "   : s, (kyrs**(-1))                    
