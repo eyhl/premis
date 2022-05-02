@@ -1,3 +1,13 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import subprocess
+import shlex
+import os
+
+from paths import PROJECT_ROOT
+from TABOO.taboo import taboo_task_1
+
 filename_hlove = "h.dat"
 
 station_name = "KUAQ"
@@ -7,9 +17,6 @@ lon_station = -33.05270000
 lat_glacier = 68.645056
 lon_glacier = -33.029416
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 
 def read_hlove(filename: str):
     h = pd.read_csv(filename, skiprows=2, header=None, delim_whitespace=True)
@@ -64,7 +71,7 @@ def funcB(gamma, aread, hlove, nlove):
     p1 = x
     polyl[1] = p1
 
-    for j in np.arange(1,DevMAX):
+    for j in np.arange(1, DevMAX):
         p2 = ((2 * j + 1) * x * p1 - j * p0) / (j + 1)
         polyl[j + 1] = p2
         p0 = p1
@@ -96,6 +103,44 @@ def funcB(gamma, aread, hlove, nlove):
 
     return valore
 
+
 # Far field
 def funcC(gamma, aread, hlove, nlove):
     raise NotImplementedError()
+
+
+if __name__ == "__main__":
+    print(PROJECT_ROOT)
+    MAKE_MODEL = {
+        "NV": 5,
+        "CODE": 0,
+        "THICKNESS_LITHOSPHERE": 90.0,
+        "CONTROL_THICKNESS": 0,
+        "VISCO": [1.5, 1.25, 0.75, 0.75, 10, 0.0, 0.0, 0.0, 0.0],
+    }
+    # need to be in taboo folder to run taboo_task_1
+    BASEDIR = os.getcwd()
+    os.chdir(BASEDIR + "/TABOO")
+    taboo_task_1(MAKE_MODEL)
+
+    command = "./TABOO.exe"
+    args = shlex.split(command)
+    # print(args)
+    subprocess.run(args)
+    os.chdir(BASEDIR)
+    filename_hlove = PROJECT_ROOT / "src" / "models" / "TABOO" / "h.dat"
+    hlove, nlove = read_hlove(filename_hlove)
+
+    gamma = CompuGamma(lat_glacier, lon_glacier, lat_station, lon_station)
+    near_ang_dist = np.sqrt(
+        (lat_glacier - lat_station) ** 2 + (lon_glacier - lon_station) ** 2
+    )
+    arsurf = 10e5
+    ak = 6371e3  # same as aa
+    rj = np.sqrt(arsurf / np.pi)
+    if gamma >= (3 * rj / ak):
+        valure = funcC(gamma, arsurf, hlove, nlove)
+    else:
+        valore = funcB(gamma, arsurf, hlove, nlove)
+        # print(valore)
+    print(valore)

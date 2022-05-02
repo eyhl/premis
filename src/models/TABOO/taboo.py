@@ -2,6 +2,7 @@ import os
 import shlex
 import subprocess
 import re
+from pathlib import Path
 
 # TABOO_DIR = "../src/models/TABOO"
 # os.chdir(TABOO_DIR)
@@ -32,7 +33,9 @@ def taboo_task_1(MAKE_MODEL: dict) -> None:
         CONTROL_THICKNESS - control layer 7 - 9 otherwise ignored
         VISCO - list of viscoelastic coeff for each layer given in 1e21 Pa*s from bottom to top (core mantle boundary to surface)
     """
-    BASIC_CONF = {"LMIN": 2, "LMAX": 512, "VERBOSE": 0, "I_LOADING": 1}
+    tabdir = Path(__file__).parents[0]
+    print("tabdir name", tabdir)
+    BASIC_CONF = {"LMIN": 2, "LMAX": 512, "VERBOSE": 1, "I_LOADING": 1}
 
     NORMALIZED_RESIDUALS = {
         "IH_RES": 1,
@@ -53,7 +56,7 @@ def taboo_task_1(MAKE_MODEL: dict) -> None:
         "K_HEAV": 0,
     }
 
-    filename = "task_1_mod.dat"
+    filename = tabdir.joinpath("task_1_mod.dat")
     with open(filename, mode="r") as f:
         text = f.read()
 
@@ -85,7 +88,7 @@ def taboo_task_1(MAKE_MODEL: dict) -> None:
 
 
 if __name__ == "__main__":
-    taboo_task_1(BASIC_CONF, MAKE_MODEL)
+    taboo_task_1(MAKE_MODEL)
     # print("configs written to task_1")
 
     command = "./TABOO.exe"

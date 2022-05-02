@@ -19,7 +19,7 @@ Active
 !		$ONLY_ELASTIC
 Harmonic_Degrees
     2 512        ! min and max harmonic degrees 
-        0        ! verbose mode (1->verbose, 0->silent) 
+        1        ! verbose mode (1->verbose, 0->silent) 
         1        ! I_loading (loading ->1, tidal->0)
 !
 !
