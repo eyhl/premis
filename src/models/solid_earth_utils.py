@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 import subprocess
 import shlex
 import os
+import src.models
 
-from paths import PROJECT_ROOT
-from TABOO.taboo import taboo_task_1
+from src.models.paths import PROJECT_ROOT
+from src.models.TABOO.taboo import taboo_task_1
 
 filename_hlove = "h.dat"
 
@@ -107,6 +108,52 @@ def funcB(gamma, aread, hlove, nlove):
 # Far field
 def funcC(gamma, aread, hlove, nlove):
     raise NotImplementedError()
+
+def compute_love_numbers(MAKE_MODEL: dict) -> tuple:
+    """wrapper function for generating love numbers based on input earth model
+
+    Args:
+        MAKE_MODEL (dict): Input earh model parameters.
+
+    Returns:
+        tuple(np.ndarray, np.ndarray): h love numbers and n love numbers respectively
+    """
+    BASEDIR = os.path.dirname(src.models.__file__)
+    print(BASEDIR)
+    os.chdir(BASEDIR + "/TABOO")
+    taboo_task_1(MAKE_MODEL)
+
+    command = "./taboo.exe"
+    args = shlex.split(command)
+    # print(args)
+    subprocess.run(args)
+    os.chdir(BASEDIR)
+    filename_hlove = PROJECT_ROOT / "src" / "models" / "TABOO" / "h.dat"
+    hlove, nlove = read_hlove(filename_hlove)
+    
+    return (hlove, nlove)
+
+
+def greens_function(hlove: np.ndarray, nlove: np.ndarray, glacier_coordinates: list, station_coordinates: list, arsurf: float = 10e5) -> float:
+    """_summary_
+
+    Args:
+        hlove (np.ndarray): h love numbers
+        nlove (np.ndarray): n love numbers
+        glacier_coordinates (list): coordinates of the estimated glacier center of mass
+        station_coordinates (list): coordinates of the gnss station 
+        arsurf (float, optional): MISSING DESCRIPTION. Defaults to 10e5.
+
+    Returns:
+        float: greens function weight for computing uplift based on mass change
+    """
+    
+    lat_glacier, lon_glacier = glacier_coordinates
+    lat_station, lon_station = station_coordinates
+    gamma = CompuGamma(lat_glacier, lon_glacier, lat_station, lon_station)
+
+    gf = funcB(gamma, arsurf, hlove, nlove)
+    return gf
 
 
 if __name__ == "__main__":

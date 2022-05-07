@@ -3,20 +3,19 @@ import numpy.typing as npt
 import torch
 import pyro
 import pyro.distributions as dist
-from TABOO import taboo
-import greens_function
+from src.models.solid_earth_utils import compute_love_numbers, greens_function
 
 
-def premis_train(X, x=2, n=128, obs=None) -> np.ndarray:
-    """
+def premis_train(m, x=1, n=128, obs=None) -> np.ndarray:
+    """ Probabilistic model for uplift rates. This is the main model.
     Args:
-        X (_type_): _description_
-        x (int, optional): _description_. Defaults to 2.
-        n (int, optional): _description_. Defaults to 128.
-        obs (_type_, optional): _description_. Defaults to None.
+        m (np.ndarray): mass time-series data
+        s (int, optional): number of stations. Defaults to 2.
+        n (int, optional): spherical harmonic degree. Defaults to 128.
+        obs (_type_, optional): observed gnss station uplift rates. Defaults to None.
 
     Returns:
-        np.ndarray: _description_
+        np.ndarray: predicted uplift
     """
 
     #  could add dists over mu and sigmas
@@ -35,32 +34,48 @@ def premis_train(X, x=2, n=128, obs=None) -> np.ndarray:
     # m = pyro.sample("m", dist.Normal(torch.zeros(128), torch.ones(128)))
 
     sigma_w = pyro.sample("sigma", dist.HalfCauchy(0.1))
-    sigma_GF = 1
+    sigma_gf = 1
 
-    A = 1
-    c = 2 * range(n) + 1
-    D = np.random.randn(n)
+    station_coordinates = [68.58700000, -33.05270000] # [lat, lon]
+    glacier_coordinates = [68.645056, -33.029416] # [lat, lon]
+    
+    MAKE_MODEL = {
+        "NV": 5,
+        "CODE": 0,
+        "THICKNESS_LITHOSPHERE": 90.0,
+        "CONTROL_THICKNESS": 0,
+        "VISCO": [1.5, 1.25, 0.75, 0.75, 10, 0.0, 0.0, 0.0, 0.0],
+    }
 
     with pyro.plate("data"):
         # Draw Love Numbers
-        LN = torch.tensor(
-            taboo(j=n, e_l=E_L.item(), e_um=E_UM.item(), e_lm=E_LM.item())
-        )
+        hlove, nlove = torch.tensor(compute_love_numbers(MAKE_MODEL))
 
-        # Draw Greens Funciton
-        GF = pyro.sample("GF", dist.Normal(greens_function(A, D, LN), sigma_GF))
+        # Draw Greens Function
+        gf = pyro.sample("gf", dist.Normal(greens_function(hlove, nlove, glacier_coordinates, station_coordinates), sigma_gf))
 
         # Draw target
-        w = pyro.sample("w", dist.Normal(GF * m, sigma_w), obs=obs)
+        w = pyro.sample("w", dist.Normal(gf * m, sigma_w), obs=obs)
         
     return w
 
-def taboo(j: int, e_l: float, e_um: float, e_lm: float): # typing not working for some reason (ruins my code highlighting)
+def taboo(j: int, e_l: float, e_um: float, e_lm: float) -> np.ndarray:
+    """ temporary taboo function for running pyro model
+    Args:
+        j (int): _description_
+        e_l (float): _description_
+        e_um (float): _description_
+        e_lm (float): _description_
+
+    Returns:
+        np.ndarray: _description_
+    """
+    
     love_numbers = np.random.randint(j)
     return love_numbers
 
 
-if __name__ == '__main__':
-    # X = load data
-    # obs = ob
-    _ = premis_train()
+# if __name__ == '__main__':
+#     # X = load data
+#     # obs = ob
+#     _ = premis_train()
