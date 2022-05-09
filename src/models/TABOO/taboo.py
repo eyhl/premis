@@ -19,7 +19,7 @@ MAKE_MODEL = {
 }
 
 
-def taboo_task_1(MAKE_MODEL: dict) -> None:
+def taboo_task_1(MAKE_MODEL: dict):
     """_summary_
 
     Args:
