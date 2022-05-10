@@ -72,7 +72,7 @@ def write_e_clovers(conf=None):
 
 def call_e_clovers():
     """Run bash script"""
-    command = "./e-clovers_3e_bench_TEMPLATE.sh v3.5.6_Lin64D"
+    command = "./e-clovers_3e_bench_TEMPLATE.sh v3.5.6_Lin64S"
     args = shlex.split(command)
     print(args)
     subprocess.run(args, check=True)
