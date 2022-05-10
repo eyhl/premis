@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 import contextlib
 
-PROJECT_ROOT = Path.cwd()
+# PROJECT_ROOT = Path.cwd()
 
 
 @contextlib.contextmanager
@@ -78,10 +78,10 @@ def call_e_clovers():
     subprocess.run(args, check=True)
 
 
-def read_elastic():
+def read_elastic(path=""):
     """Read the elastic love numbers as a pandas dataframe"""
     filename = "LLN_Bench_C_256_O_2.dat"
-    df = pd.read_csv(filename, skiprows=12, header=None, delim_whitespace=True)
+    df = pd.read_csv(path + filename, skiprows=12, header=None, delim_whitespace=True)
     cols = ["LL", "k", "h", "l"]
     df.columns = cols
 

@@ -1,0 +1,26 @@
+name: MBML
+channels:
+    - pytorch
+    - conda-forge
+dependencies:
+    # Install jupyterlab and install usefull extensions
+    - jupyterlab
+    - nodejs
+    - black
+    - isort
+    - ipywidgets
+    - ipympl
+    # Install python packages
+    - numpy
+    - numba
+    - pandas
+    - scikit-learn
+    - scipy
+    - tqdm
+    - pystan
+    - pytorch
+    - pyro-ppl=1.8
+    - numpyro
+    - matplotlib
+    - seaborn
+    - pip

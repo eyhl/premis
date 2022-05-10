@@ -7,7 +7,15 @@ import os
 import src.models
 
 from src.models.paths import PROJECT_ROOT
-from src.models.TABOO.taboo import taboo_task_1
+
+# from src.models.TABOO.taboo import taboo_task_1
+from src.models.e_clovers import (
+    working_directory,
+    write_earth_model,
+    write_e_clovers,
+    call_e_clovers,
+    read_elastic,
+)
 
 filename_hlove = "h.dat"
 
@@ -20,6 +28,7 @@ lon_glacier = -33.029416
 
 
 def read_hlove(filename: str):
+    """jep"""
     h = pd.read_csv(filename, skiprows=2, header=None, delim_whitespace=True)
     n_love = h.shape[0]
     h_love = np.zeros(n_love)
@@ -28,12 +37,9 @@ def read_hlove(filename: str):
     return h_love, n_love
 
 
-def near_angular_distance(lat1, lon1, lat2, lon2):
-    return np.sqrt((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2)
-
-
 # ar is load (index 1) and cr is location at station (index 2)
 def CompuGamma(t1: float, f1: float, t2: float, f2: float):
+    """compute angular distance between two sets of coordinates"""
     t1 = t1 * np.pi / 180
     t2 = t1 * np.pi / 180
     f1 = t1 * np.pi / 180
@@ -43,7 +49,7 @@ def CompuGamma(t1: float, f1: float, t2: float, f2: float):
 
     if cosg > 1:
         cosg = 1
-    elif:
+    elif cosg < -1:
         cosg = -1
 
     gamma = np.arccos(cosg)
@@ -111,7 +117,8 @@ def funcC(gamma, aread, hlove, nlove):
     raise NotImplementedError()
 
 
-def compute_love_numbers(MAKE_MODEL: dict) -> tuple:
+def compute_love_numbers():
+
     """wrapper function for generating love numbers based on input earth model
 
     Args:
@@ -119,19 +126,15 @@ def compute_love_numbers(MAKE_MODEL: dict) -> tuple:
 
     Returns:
         tuple(np.ndarray, np.ndarray): h love numbers and n love numbers respectively
-    """
-    BASEDIR = os.path.dirname(src.models.__file__)
-    print(BASEDIR)
-    os.chdir(BASEDIR + "/TABOO")
-    taboo_task_1(MAKE_MODEL)
 
-    command = "./taboo.exe"
-    args = shlex.split(command)
-    # print(args)
-    subprocess.run(args)
-    os.chdir(BASEDIR)
-    filename_hlove = PROJECT_ROOT / "src" / "models" / "TABOO" / "h.dat"
-    hlove, nlove = read_hlove(filename_hlove)
+    """
+    with working_directory("./e_clovers"):
+        write_earth_model()
+        write_e_clovers()
+        call_e_clovers()
+        df = read_elastic()
+    hlove = df.h.values
+    nlove = hlove.shape[0]
 
     return (hlove, nlove)
 
@@ -165,37 +168,17 @@ def greens_function(
 
 
 if __name__ == "__main__":
-    print(PROJECT_ROOT)
-    MAKE_MODEL = {
-        "NV": 5,
-        "CODE": 0,
-        "THICKNESS_LITHOSPHERE": 90.0,
-        "CONTROL_THICKNESS": 0,
-        "VISCO": [1.5, 1.25, 0.75, 0.75, 10, 0.0, 0.0, 0.0, 0.0],
-    }
-    # need to be in taboo folder to run taboo_task_1
-    BASEDIR = os.getcwd()
-    os.chdir(BASEDIR + "/TABOO")
-    taboo_task_1(MAKE_MODEL)
+    station_coordinates = [68.58700000, -33.05270000]
+    glacier_coordinates = [68.645056, -33.029416]
+    hlove, nlove = compute_love_numbers()
+    gf = greens_function(hlove, nlove, glacier_coordinates, station_coordinates)
+    print(gf)
 
-    command = "./TABOO.exe"
-    args = shlex.split(command)
-    # print(args)
-    subprocess.run(args)
-    os.chdir(BASEDIR)
-    filename_hlove = PROJECT_ROOT / "src" / "models" / "TABOO" / "h.dat"
-    hlove, nlove = read_hlove(filename_hlove)
-
-    gamma = CompuGamma(lat_glacier, lon_glacier, lat_station, lon_station)
-    near_ang_dist = np.sqrt(
-        (lat_glacier - lat_station) ** 2 + (lon_glacier - lon_station) ** 2
-    )
-    arsurf = 10e5
-    ak = 6371e3  # same as aa
-    rj = np.sqrt(arsurf / np.pi)
-    if gamma >= (3 * rj / ak):
-        valure = funcC(gamma, arsurf, hlove, nlove)
-    else:
-        valore = funcB(gamma, arsurf, hlove, nlove)
-        # print(valore)
-    print(valore)
+    """
+    with working_directory("./e_clovers"):
+        # print(Path.cwd())
+        write_earth_model()
+        write_e_clovers()
+        call_e_clovers()
+        df = read_elastic()
+    """
