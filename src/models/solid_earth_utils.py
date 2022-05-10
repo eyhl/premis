@@ -43,7 +43,7 @@ def CompuGamma(t1: float, f1: float, t2: float, f2: float):
 
     if cosg > 1:
         cosg = 1
-    else:
+    elif:
         cosg = -1
 
     gamma = np.arccos(cosg)
@@ -52,6 +52,7 @@ def CompuGamma(t1: float, f1: float, t2: float, f2: float):
 
 # Near field
 def funcB(gamma, aread, hlove, nlove):
+    """helo"""
     aa = 6371e3  # Earth Radius in m
     ad = 26000e6  # ?
     rho = 1e3  # density of water or ice?
@@ -109,6 +110,7 @@ def funcB(gamma, aread, hlove, nlove):
 def funcC(gamma, aread, hlove, nlove):
     raise NotImplementedError()
 
+
 def compute_love_numbers(MAKE_MODEL: dict) -> tuple:
     """wrapper function for generating love numbers based on input earth model
 
@@ -130,24 +132,30 @@ def compute_love_numbers(MAKE_MODEL: dict) -> tuple:
     os.chdir(BASEDIR)
     filename_hlove = PROJECT_ROOT / "src" / "models" / "TABOO" / "h.dat"
     hlove, nlove = read_hlove(filename_hlove)
-    
+
     return (hlove, nlove)
 
 
-def greens_function(hlove: np.ndarray, nlove: np.ndarray, glacier_coordinates: list, station_coordinates: list, arsurf: float = 10e5) -> float:
+def greens_function(
+    hlove: np.ndarray,
+    nlove: np.ndarray,
+    glacier_coordinates: list,
+    station_coordinates: list,
+    arsurf: float = 10e5,
+) -> float:
     """_summary_
 
     Args:
         hlove (np.ndarray): h love numbers
         nlove (np.ndarray): n love numbers
         glacier_coordinates (list): coordinates of the estimated glacier center of mass
-        station_coordinates (list): coordinates of the gnss station 
+        station_coordinates (list): coordinates of the gnss station
         arsurf (float, optional): MISSING DESCRIPTION. Defaults to 10e5.
 
     Returns:
         float: greens function weight for computing uplift based on mass change
     """
-    
+
     lat_glacier, lon_glacier = glacier_coordinates
     lat_station, lon_station = station_coordinates
     gamma = CompuGamma(lat_glacier, lon_glacier, lat_station, lon_station)
