@@ -7,7 +7,7 @@ from src.models.solid_earth_utils import compute_love_numbers, greens_function
 
 
 def premis_train(m, x=1, n=128, obs=None) -> np.ndarray:
-    """ Probabilistic model for uplift rates. This is the main model.
+    """Probabilistic model for uplift rates. This is the main model.
     Args:
         m (np.ndarray): mass time-series data
         s (int, optional): number of stations. Defaults to 2.
@@ -36,31 +36,30 @@ def premis_train(m, x=1, n=128, obs=None) -> np.ndarray:
     sigma_w = pyro.sample("sigma", dist.HalfCauchy(0.1))
     sigma_gf = 1
 
-    station_coordinates = [68.58700000, -33.05270000] # [lat, lon]
-    glacier_coordinates = [68.645056, -33.029416] # [lat, lon]
-    
-    MAKE_MODEL = {
-        "NV": 5,
-        "CODE": 0,
-        "THICKNESS_LITHOSPHERE": 90.0,
-        "CONTROL_THICKNESS": 0,
-        "VISCO": [1.5, 1.25, 0.75, 0.75, 10, 0.0, 0.0, 0.0, 0.0],
-    }
+    station_coordinates = [68.58700000, -33.05270000]  # [lat, lon]
+    glacier_coordinates = [68.645056, -33.029416]  # [lat, lon]
 
     with pyro.plate("data"):
         # Draw Love Numbers
-        hlove, nlove = torch.tensor(compute_love_numbers(MAKE_MODEL))
+        hlove, nlove = torch.tensor(compute_love_numbers())
 
         # Draw Greens Function
-        gf = pyro.sample("gf", dist.Normal(greens_function(hlove, nlove, glacier_coordinates, station_coordinates), sigma_gf))
+        gf = pyro.sample(
+            "gf",
+            dist.Normal(
+                greens_function(hlove, nlove, glacier_coordinates, station_coordinates),
+                sigma_gf,
+            ),
+        )
 
         # Draw target
         w = pyro.sample("w", dist.Normal(gf * m, sigma_w), obs=obs)
-        
+
     return w
 
+
 def taboo(j: int, e_l: float, e_um: float, e_lm: float) -> np.ndarray:
-    """ temporary taboo function for running pyro model
+    """temporary taboo function for running pyro model
     Args:
         j (int): _description_
         e_l (float): _description_
@@ -70,7 +69,7 @@ def taboo(j: int, e_l: float, e_um: float, e_lm: float) -> np.ndarray:
     Returns:
         np.ndarray: _description_
     """
-    
+
     love_numbers = np.random.randint(j)
     return love_numbers
 
