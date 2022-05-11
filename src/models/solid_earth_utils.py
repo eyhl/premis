@@ -128,11 +128,14 @@ def compute_love_numbers():
         tuple(np.ndarray, np.ndarray): h love numbers and n love numbers respectively
 
     """
-    with working_directory("./e_clovers"):
+    e_clovers_path = os.path.join(PROJECT_ROOT, "src/models/e_clovers")
+    
+    with working_directory(e_clovers_path):
         write_earth_model()
         write_e_clovers()
         call_e_clovers()
         df = read_elastic()
+        
     hlove = df.h.values
     nlove = hlove.shape[0]
 

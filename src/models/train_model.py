@@ -41,7 +41,7 @@ def premis_train(m, x=1, n=128, obs=None) -> np.ndarray:
 
     with pyro.plate("data"):
         # Draw Love Numbers
-        hlove, nlove = torch.tensor(compute_love_numbers())
+        hlove, nlove = compute_love_numbers()
 
         # Draw Greens Function
         gf = pyro.sample(
