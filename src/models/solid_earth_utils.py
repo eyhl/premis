@@ -79,18 +79,21 @@ def funcB(gamma, aread, hlove, nlove):
     p1 = x
     polyl[1] = p1
 
+    # legendre polynomial evaluated at arcdistance gamma
     for j in np.arange(1, DevMAX):
         p2 = ((2 * j + 1) * x * p1 - j * p0) / (j + 1)
         polyl[j + 1] = p2
         p0 = p1
         p1 = p2
 
+    # disk distance
     x = np.cos(r / aa)
 
     p0 = 1
     p1 = x
     toth = 0
-
+    # differentiated legandre polynomial evaluated for disk
+    # see Valentina paper 2006 eq (4)
     for j in np.arange(1, nlove):
         p2 = ((2 * j + 1) * x * p1 - j * p0) / (j + 1)
         pp = ((x * p1) - p2) / j
@@ -128,10 +131,10 @@ def compute_love_numbers():
         tuple(np.ndarray, np.ndarray): h love numbers and n love numbers respectively
 
     """
-    with working_directory("./e_clovers"):
+    with working_directory(PROJECT_ROOT / "src" / "models" / "e_clovers"):
         write_earth_model()
         write_e_clovers()
-        call_e_clovers()
+        call_e_clovers(verbose=1)
         df = read_elastic()
     hlove = df.h.values
     nlove = hlove.shape[0]

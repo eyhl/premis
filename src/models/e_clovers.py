@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 import contextlib
 
-# PROJECT_ROOT = Path.cwd()
+from src.models.paths import PROJECT_ROOT
 
 
 @contextlib.contextmanager
@@ -70,12 +70,18 @@ def write_e_clovers(conf=None):
         f.truncate()
 
 
-def call_e_clovers():
+def call_e_clovers(verbose=1):
+
+    if verbose:
+        stdout = None
+    else:
+        stdout = subprocess.DEVNULL
+
     """Run bash script"""
     command = "./e-clovers_3e_bench_TEMPLATE.sh v3.5.6_Lin64S"
     args = shlex.split(command)
-    print(args)
-    subprocess.run(args, check=True)
+    # print(args)
+    subprocess.run(args, check=True, stdout=stdout)
 
 
 def read_elastic(path=""):
@@ -89,10 +95,11 @@ def read_elastic(path=""):
 
 
 if __name__ == "__main__":
-    with working_directory("./e_clovers"):
+    # print(PROJECT_ROOT)
+    with working_directory(PROJECT_ROOT / "src" / "models" / "e_clovers"):
         # print(Path.cwd())
         write_earth_model()
         write_e_clovers()
-        call_e_clovers()
+        call_e_clovers(verbose=1)
 
     # print(Path.cwd())
