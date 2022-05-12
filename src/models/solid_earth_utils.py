@@ -120,7 +120,9 @@ def funcC(gamma, aread, hlove, nlove):
     raise NotImplementedError()
 
 
-def compute_love_numbers():
+def compute_love_numbers(
+    df_em: pd.DataFrame = None, CONF: dict = None, verbose: int = 1
+):
 
     """wrapper function for generating love numbers based on input earth model
 
@@ -131,11 +133,16 @@ def compute_love_numbers():
         tuple(np.ndarray, np.ndarray): h love numbers and n love numbers respectively
 
     """
+    if CONF is not None:
+        lovefile = f'LLN_{CONF["LABEL_OUTPUT"]}.dat'
+    else:
+        lovefile = "LLN_Bench_C_256_O_2.dat"
+
     with working_directory(PROJECT_ROOT / "src" / "models" / "e_clovers"):
-        write_earth_model()
-        write_e_clovers()
-        call_e_clovers(verbose=1)
-        df = read_elastic()
+        write_earth_model(df_em)
+        write_e_clovers(CONF)
+        call_e_clovers(verbose=verbose)
+        df = read_elastic(filename=lovefile)
     hlove = df.h.values
     nlove = hlove.shape[0]
 

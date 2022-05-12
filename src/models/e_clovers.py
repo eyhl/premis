@@ -23,33 +23,36 @@ def working_directory(path):
         os.chdir(prev_cwd)
 
 
-def write_earth_model(output_name="earth_M3L70V01c.txt"):
+def write_earth_model(df_em: pd.DataFrame = None, output_name="earth_M3L70V01c.txt"):
     """make earth model file"""
     header = """# radius,    density,   rigidity    bulk         viscosity
 # (m)        (kg/m^3)   (Pa)        (Pa)         (Pa.s)\n"""
+    if df_em is None:
+        Nr = np.arange(1, 6).tolist()
+        radius = [6371e3, 6301e3, 5951e3, 5701e3, 3480e3]
+        density = [3.037e3, 3.438e3, 3.871e3, 4.978e3, 10.750e3]
+        rigidity = [0.50605e11, 0.70363e11, 1.05490e11, 2.28340e11, 0.0000e11]
+        bulk = [5.7437e10, 9.9633e10, 1.5352e11, 3.2210e11, 1.1018e12]
+        viscosity = [1.0e55, 1.0e21, 1.0e21, 2.0e21, 0.0e21]
 
-    Nr = np.arange(1, 6).tolist()
-    radius = [6371e3, 6301e3, 5951e3, 5701e3, 3480e3]
-    density = [3.037e3, 3.438e3, 3.871e3, 4.978e3, 10.750e3]
-    rigidity = [0.50605e11, 0.70363e11, 1.05490e11, 2.28340e11, 0.0000e11]
-    bulk = [5.7437e10, 9.9633e10, 1.5352e11, 3.2210e11, 1.1018e12]
-    viscosity = [1.0e55, 1.0e21, 1.0e21, 2.0e21, 0.0e21]
+        df_em = pd.DataFrame(
+            np.array([Nr, radius, density, rigidity, bulk, viscosity]).T,
+            columns=["Nr", "radius", "density", "rigidity", "bulk", "viscosity"],
+        )
+    N_layers = df_em.shape[0]
 
-    N_layers = len(Nr)
-
-    fname_earth_model = output_name
-    with open(fname_earth_model, mode="w") as f:
+    with open(output_name, mode="w") as f:
         f.write(header)
         for i in range(N_layers):
             # f.write(f" {Nr[i]} {radius[i]}    {density[i]}    {rigidity[i]}  {bulk[i]}    {viscosity[i]}\n")
             f.write(
-                f" {Nr[i]} {np.format_float_scientific(radius[i], precision=3, unique=False, exp_digits=1)}   {np.format_float_scientific(density[i], precision=3, unique=False, exp_digits=1)}  {np.format_float_scientific(rigidity[i], precision=4, unique=False, exp_digits=2)}  {np.format_float_scientific(bulk[i], precision=4, unique=False, exp_digits=2)}   {np.format_float_scientific(viscosity[i], precision=1, unique=False, exp_digits=2)}\n"
+                f" {int(df_em.Nr[i])} {np.format_float_scientific(df_em.radius[i], precision=3, unique=False, exp_digits=1)}   {np.format_float_scientific(df_em.density[i], precision=3, unique=False, exp_digits=1)}  {np.format_float_scientific(df_em.rigidity[i], precision=4, unique=False, exp_digits=2)}  {np.format_float_scientific(df_em.bulk[i], precision=4, unique=False, exp_digits=2)}   {np.format_float_scientific(df_em.viscosity[i], precision=1, unique=False, exp_digits=2)}\n"
             )
 
 
-def write_e_clovers(conf=None):
+def write_e_clovers(CONF=None):
     """write config into the bash script"""
-    if conf is None:
+    if CONF is None:
         CONF = {
             "EARTH_FILE": "earth_M3L70V01c.txt",
             "COMPRESS": "1",
@@ -71,22 +74,20 @@ def write_e_clovers(conf=None):
 
 
 def call_e_clovers(verbose=1):
-
+    """Run bash script"""
     if verbose:
         stdout = None
     else:
         stdout = subprocess.DEVNULL
 
-    """Run bash script"""
     command = "./e-clovers_3e_bench_TEMPLATE.sh v3.5.6_Lin64S"
     args = shlex.split(command)
     # print(args)
     subprocess.run(args, check=True, stdout=stdout)
 
 
-def read_elastic(path=""):
+def read_elastic(path="", filename="LLN_Bench_C_256_O_2.dat"):
     """Read the elastic love numbers as a pandas dataframe"""
-    filename = "LLN_Bench_C_256_O_2.dat"
     df = pd.read_csv(path + filename, skiprows=12, header=None, delim_whitespace=True)
     cols = ["LL", "k", "h", "l"]
     df.columns = cols
