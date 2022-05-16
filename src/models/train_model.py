@@ -6,7 +6,7 @@ import pyro.distributions as dist
 from src.models.solid_earth_utils import compute_love_numbers, greens_function
 
 
-def premis_train(m, x=1, n=128, obs=None) -> np.ndarray:
+def premis_model(m, x=1, n=128, obs=None) -> np.ndarray:
     """Probabilistic model for uplift rates. This is the main model.
     Args:
         m (np.ndarray): mass time-series data
@@ -41,7 +41,7 @@ def premis_train(m, x=1, n=128, obs=None) -> np.ndarray:
 
     with pyro.plate("data"):
         # Draw Love Numbers
-        hlove, nlove = torch.tensor(compute_love_numbers())
+        hlove, nlove = compute_love_numbers()
 
         # Draw Greens Function
         gf = pyro.sample(
