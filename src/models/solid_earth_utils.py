@@ -70,9 +70,9 @@ def funcB(gamma, aread, hlove, nlove):
     r = np.sqrt(aread / np.pi)
 
     # if use height instead of mass
-    # coeff = 4 * np.pi * (aa**3) * rho / ma
+    coeff = 4 * np.pi * (aa**3) * rho / ma
     # if use mass instead of height
-    coeff = aa / ma
+    # coeff = aa / ma
 
     x = np.cos(gamma)
 
