@@ -41,9 +41,9 @@ def read_hlove(filename: str):
 def CompuGamma(t1: float, f1: float, t2: float, f2: float):
     """compute angular distance between two sets of coordinates"""
     t1 = t1 * np.pi / 180
-    t2 = t1 * np.pi / 180
-    f1 = t1 * np.pi / 180
-    f2 = t1 * np.pi / 180
+    t2 = t2 * np.pi / 180
+    f1 = f1 * np.pi / 180
+    f2 = f2 * np.pi / 180
 
     cosg = (np.cos(t1) * np.cos(t2)) + (np.sin(t1) * np.cos(t2) * np.cos(f1 - f2))
 
@@ -182,7 +182,9 @@ if __name__ == "__main__":
     station_coordinates = [68.58700000, -33.05270000]
     glacier_coordinates = [68.645056, -33.029416]
     hlove, nlove = compute_love_numbers()
-    gf = greens_function(hlove, nlove, glacier_coordinates, station_coordinates)
+    gf = greens_function(
+        hlove, nlove, glacier_coordinates, station_coordinates, arsurf=5e3 * 5e3
+    )
     print(gf)
 
     """
