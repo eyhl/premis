@@ -68,7 +68,11 @@ def funcB(gamma, aread, hlove, nlove):
     hmax = hlove[nlove - 1]  # be sure hlove should not be 1 longer eg. 0 at index 0
     zfac = np.pi / 180
     r = np.sqrt(aread / np.pi)
-    coeff = 4 * np.pi * (aa**3) * rho / ma
+
+    # if use height instead of mass
+    # coeff = 4 * np.pi * (aa**3) * rho / ma
+    # if use mass instead of height
+    coeff = aa / ma
 
     x = np.cos(gamma)
 
