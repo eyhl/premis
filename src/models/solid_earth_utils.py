@@ -5,6 +5,7 @@ import subprocess
 import shlex
 import os
 import src.models
+from numba import jit
 
 from src.models.paths import PROJECT_ROOT
 
@@ -57,6 +58,7 @@ def CompuGamma(t1: float, f1: float, t2: float, f2: float):
 
 
 # Near field
+@jit(nopython=True)
 def funcB(gamma, aread, hlove, nlove):
     """helo"""
     aa = 6371e3  # Earth Radius in m
@@ -177,7 +179,6 @@ def greens_function(
     lat_glacier, lon_glacier = glacier_coordinates
     lat_station, lon_station = station_coordinates
     gamma = CompuGamma(lat_glacier, lon_glacier, lat_station, lon_station)
-
     gf = funcB(gamma, arsurf, hlove, nlove)
     return gf
 
