@@ -63,7 +63,7 @@ def load_thickness_time_series(mat_file: str = '../../data/raw/thickness_time_se
     d = {'Time': df_desc.index, 'Thickness': df_desc.iloc[:, 1].values}
     df = pd.DataFrame(data=d)
     df = df.interpolate('pad')
-    df.loc[1:, ('Thickness')] = np.diff(df.Thickness.values)
+    df.loc[1:, ('Thickness')] = np.diff(df.Thickness.values) * 1e3 # in mm
     df = df.iloc[1:, :]
     #df = df.diff()
     
