@@ -46,7 +46,7 @@ def load_thickness_time_series(mat_file: str = '../../data/raw/thickness_time_se
     """
     mat = loadmat(mat_file)
 
-    time = mat['time'].squeeze()
+    time = mat['times'].squeeze()
     thickness = mat['thickness'].squeeze()
 
 
