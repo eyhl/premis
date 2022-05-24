@@ -16,7 +16,7 @@ def load_uplift():
     df_mik2.Time = pd.to_datetime(df_kuaq.Time)
 
     df_height = load_thickness_time_series(
-        PROJECT_ROOT / "data" / "processed" / "1900_2020_mean_thickness.mat"
+        PROJECT_ROOT / "data" / "raw" / "thickness.mat"
     )
     df = pd.merge(df_height, df_kuaq, how="inner")
     df = pd.merge(df, df_mik2, how="inner")
