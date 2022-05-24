@@ -45,8 +45,7 @@ def load_thickness_time_series(mat_file: str = '../../data/raw/thickness_time_se
         A dataframe with (time [date], change in thickness [mm/yr]) in the columns
     """
     mat = loadmat(mat_file)
-
-    time = mat['times'].squeeze()
+    time = mat['time'].squeeze()
     thickness = mat['thickness'].squeeze()
 
 
