@@ -6,6 +6,7 @@ import shlex
 import os
 import src.models
 from numba import jit
+import torch
 
 from src.models.paths import PROJECT_ROOT
 
@@ -181,6 +182,28 @@ def greens_function(
     gamma = CompuGamma(lat_glacier, lon_glacier, lat_station, lon_station)
     gf = funcB(gamma, arsurf, hlove, nlove)
     return gf
+
+class FFNN(torch.nn.Module):
+    def __init__(self, n_in, n_hidden, n_out):
+        super(FFNN, self).__init__()
+        
+        # Architecture
+        self.in_layer = torch.nn.Linear(n_in, n_hidden)
+        self.h1_layer = torch.nn.Linear(n_hidden, n_hidden)
+        self.h2_layer = torch.nn.Linear(n_hidden, n_hidden)
+        self.out_layer = torch.nn.Linear(n_hidden, n_out)
+        
+        # Activation functions
+        self.relu = torch.nn.ReLU()
+        
+    def forward(self, X):
+        # Forward pass
+        X = self.relu(self.in_layer(X))
+        X = self.relu(self.h1_layer(X))
+        X = self.relu(self.h2_layer(X))
+        X = self.out_layer(X)
+        
+        return X
 
 
 if __name__ == "__main__":
