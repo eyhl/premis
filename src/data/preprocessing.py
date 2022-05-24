@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime, timedelta, date
 import numpy as np
+import torch
 
 def volume_to_mass_time_series(mat_file: str = '../../data/raw/volume_time_series.mat', save: bool = True) -> pd.DataFrame():
     """
@@ -119,3 +120,16 @@ def detrend(x):
     trend = a * t**3 + b * t**2 + c * t + d
     x_detrended = x - trend
     return x_detrended
+
+def ffnn_input_vector(df_em):
+    df_params = pd.read_csv('../data/processed/ffnn_variable_normalisation_params.csv')
+
+    x = np.hstack(((df_em["radius"].values - df_params["radius_mu"][0]) / df_params["radius_sigma"][0], 
+                    (df_em["density"].values - df_params["density_mu"][0]) / df_params["density_sigma"][0],
+                    (df_em["rigidity"].values - df_params["rigidity_mu"][0]) / df_params["rigidity_sigma"][0], 
+                    (df_em["bulk"].values - df_params["bulk_mu"][0]) / df_params["bulk_sigma"][0], 
+                    (df_em["viscosity"].values - df_params["viscosity_mu"][0]) / df_params["viscosity_sigma"][0]))
+    x = np.array(x, dtype=np.float32)
+    x = np.insert(x, 0, 80)
+    x = torch.tensor(x, dtype=torch.float32)
+    return x
