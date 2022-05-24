@@ -45,7 +45,7 @@ def load_thickness_time_series(mat_file: str = '../../data/raw/thickness_time_se
         A dataframe with (time [date], change in thickness [mm/yr]) in the columns
     """
     mat = loadmat(mat_file)
-    time = mat['time'].squeeze()
+    time = mat['times'].squeeze()
     thickness = mat['thickness'].squeeze()
 
 
@@ -111,3 +111,11 @@ def year_fraction(df: pd.DataFrame) -> pd.DataFrame:
         df.dropna(subset=['Up'])
         # df.dropna(axis=0)
     return df
+
+def detrend(x):
+    t = np.arange(len(x))
+    G = np.vstack([t**3, t**2, t, np.ones_like(t)]).T
+    a, b, c, d = np.linalg.lstsq(G, x, rcond=None)[0]
+    trend = a * t**3 + b * t**2 + c * t + d
+    x_detrended = x - trend
+    return x_detrended
