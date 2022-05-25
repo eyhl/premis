@@ -4,6 +4,8 @@ from torch.distributions.transforms import AbsTransform
 from pyro.distributions.torch import TransformedDistribution
 from torch.distributions.transforms import Transform
 
+from torch.nn import Threshold
+
 class IntervalTransform(Transform):
     r"""
     Transform via the mapping :math:`y = a <= x <= b`.
@@ -22,6 +24,13 @@ class IntervalTransform(Transform):
     def _call(self, x):
         x[self.a > x] = self.a
         x[self.b < x] = self.b
+        
+        # t1 = Threshold(self.a, self.a, inplace=False)
+        # t2 = Threshold(-self.b, self.b, inplace=False)
+        
+        # x = t1(-x).abs()
+        # x = t2(x)
+
         return x
 
     def _inverse(self, y):
