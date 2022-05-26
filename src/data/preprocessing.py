@@ -34,7 +34,7 @@ def volume_to_mass_time_series(mat_file: str = '../../data/raw/volume_time_serie
 
     return df
 
-def load_thickness_time_series(mat_file: str = '../../data/raw/thickness.mat', save: bool = True) -> pd.DataFrame():
+def load_thickness_time_series(mat_file: str = '../../data/raw/thickness_time_series.mat', save: bool = True, timefreq = "M") -> pd.DataFrame():
     """
     Loads a thickness time series from .mat file and preprocesses it to be yearly changes [mm/yr] and 
     resamples to monthly means (placed at last date of month)
@@ -57,7 +57,7 @@ def load_thickness_time_series(mat_file: str = '../../data/raw/thickness.mat', s
     df = df.dropna()
     df = year_convert(df)
     
-    df_desc = df.groupby(pd.Grouper(level="Time", freq="W"))[
+    df_desc = df.groupby(pd.Grouper(level="Time", freq=timefreq))[
         ["Thickness"]
     ].describe()
         
