@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import numpy as np
 import torch
+from scipy.optimize import least_squares
 
 def volume_to_mass_time_series(mat_file: str = '../../data/raw/volume_time_series.mat', save: bool = True) -> pd.DataFrame():
     """
@@ -33,7 +34,7 @@ def volume_to_mass_time_series(mat_file: str = '../../data/raw/volume_time_serie
 
     return df
 
-def load_thickness_time_series(mat_file: str = '../../data/raw/thickness_time_series.mat', save: bool = True) -> pd.DataFrame():
+def load_thickness_time_series(mat_file: str = '../../data/raw/thickness.mat', save: bool = True) -> pd.DataFrame():
     """
     Loads a thickness time series from .mat file and preprocesses it to be yearly changes [mm/yr] and 
     resamples to monthly means (placed at last date of month)
@@ -56,7 +57,7 @@ def load_thickness_time_series(mat_file: str = '../../data/raw/thickness_time_se
     df = df.dropna()
     df = year_convert(df)
     
-    df_desc = df.groupby(pd.Grouper(level="Time", freq="M"))[
+    df_desc = df.groupby(pd.Grouper(level="Time", freq="W"))[
         ["Thickness"]
     ].describe()
         
@@ -114,6 +115,10 @@ def year_fraction(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def detrend(x):
+    if np.isnan(x).sum() != 0:
+        nan_index = np.where(np.isnan(x))[0]
+        x[nan_index] = x[nan_index + 1]
+    
     t = np.arange(len(x))
     G = np.vstack([t**3, t**2, t, np.ones_like(t)]).T
     a, b, c, d = np.linalg.lstsq(G, x, rcond=None)[0]
