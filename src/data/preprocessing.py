@@ -126,8 +126,8 @@ def detrend(x):
     x_detrended = x - trend
     return x_detrended
 
-def ffnn_input_vector(df_em):
-    df_params = pd.read_csv('../data/processed/ffnn_variable_normalisation_params.csv')
+def ffnn_input_vector(df_em, path = '../data/processed/ffnn_variable_normalisation_params.csv'):
+    df_params = pd.read_csv(path)
 
     x = np.hstack(((df_em["radius"].values - df_params["radius_mu"][0]) / df_params["radius_sigma"][0], 
                     (df_em["density"].values - df_params["density_mu"][0]) / df_params["density_sigma"][0],
@@ -137,4 +137,4 @@ def ffnn_input_vector(df_em):
     x = np.array(x, dtype=np.float32)
     x = np.insert(x, 0, 80)
     x = torch.tensor(x, dtype=torch.float32)
-    return x
+    return df_params, x
