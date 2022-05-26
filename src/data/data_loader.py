@@ -11,6 +11,8 @@ def load_uplift(timefreq="M"):
     elif timefreq=="W":
         df_kuaq = pd.read_csv(PROJECT_ROOT / "data" / "processed" / "KUAQ_filtered_week.csv")
         df_mik2 = pd.read_csv(PROJECT_ROOT / "data" / "processed" / "MIK2_filtered_week.csv")
+        df_mik2.loc[0, "Up"] = df_mik2.loc[1, "Up"]
+        # There was a nan value in the first index
     else:
         raise Exception(f"No time series with whis {timefreq} interval")
 
