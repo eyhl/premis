@@ -138,3 +138,34 @@ def ffnn_input_vector(df_em, path = '../data/processed/ffnn_variable_normalisati
     x = np.insert(x, 0, 80)
     x = torch.tensor(x, dtype=torch.float32)
     return df_params, x
+
+
+def interval_outlier(
+    df: pd.DataFrame,
+    M_step=24,
+    max_std=2,
+    col_selected=["Thickness"],
+):
+
+    start = df.index[0]
+    step1 = pd.Timestamp(start)
+    step2 = pd.Timestamp(step1) + pd.DateOffset(months=M_step)
+
+    endtime = df.index[-1]
+    df2 = df.copy()
+
+    while step1 < endtime:
+        step2 = pd.Timestamp(step1) + pd.DateOffset(months=M_step)
+
+        start_loc = step1.strftime("%Y-%m-%d")
+        end_loc = step2.strftime("%Y-%m-%d")
+
+        df_tmp = df2.loc[start_loc:end_loc, col_selected][0:-1]
+        z = (df_tmp - df_tmp.mean()) / df_tmp.std()
+
+        zfilter = abs(z) > max_std
+        df.loc[start_loc:end_loc] = df[~zfilter]
+
+        step1 = pd.Timestamp(step1) + pd.DateOffset(months=M_step)
+
+    return df
